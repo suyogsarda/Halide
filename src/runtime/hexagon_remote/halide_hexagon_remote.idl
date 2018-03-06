@@ -37,13 +37,14 @@ interface halide_hexagon_remote
 
     // Set a performance target.
     long set_performance_mode(in long mode);
-    long set_performance(in long set_mips,
+    long set_performance_v2(in long set_mips,
                          in unsigned long mipsPerThread,
                          in unsigned long mipsTotal,
                          in long set_bus_bw,
                          in unsigned long bwMegabytesPerSec,
                          in unsigned long busbwUsagePercentage,
                          in long set_latency,
-                         in long latency);
+                         in long latency,
+                         in long mode);
 
 };

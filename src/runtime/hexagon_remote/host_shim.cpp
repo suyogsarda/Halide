@@ -10,6 +10,13 @@ typedef halide_hexagon_remote_scalar_t scalar_t;
 
 extern "C" {
 
+enum {
+     HAP_DCVS_VCORNER_SVS = 0,
+     HAP_DCVS_VCORNER_NOM = 1,
+     HAP_DCVS_VCORNER_TURBO = 2,
+     HAP_DCVS_VCORNER_DISABLE = 3,
+};
+
 // In v2, we pass all scalars and small input buffers in a single buffer.
 int halide_hexagon_remote_run(handle_t module_ptr, handle_t function,
                               buffer *input_buffersPtrs, int input_buffersLen,
@@ -32,6 +39,29 @@ int halide_hexagon_remote_run(handle_t module_ptr, handle_t function,
                                         input_buffersPtrs, input_buffersLen,
                                         output_buffersPtrs, output_buffersLen,
                                         scalars, input_scalarsLen);
+}
+
+int halide_hexagon_remote_set_performance(int set_mips, unsigned int mipsPerThread,
+                                          unsigned int mipsTotal, int set_bus_bw,
+                                          unsigned int bwMegabytesPerSec,
+                                          unsigned int busbwUsagePercentage,
+                                          int set_latency, int latency) {
+
+    int mode = -1;
+    if(busbwUsagePercentage == 25)
+        mode = HAP_DCVS_VCORNER_SVS;
+    else if (busbwUsagePercentage == 50)
+        mode = HAP_DCVS_VCORNER_NOM;
+    else if (busbwUsagePercentage == 100)
+        mode = HAP_DCVS_VCORNER_TURBO;
+    else
+        mode = HAP_DCVS_VCORNER_DISABLE;
+
+    return halide_hexagon_remote_set_performance_v2(set_mips, mipsPerThread,
+                                                 mipsTotal,set_bus_bw, bwMegabytesPerSec,
+                                                 busbwUsagePercentage, set_latency,
+                                                 latency, mode);
+
 }
 
 // Before load_library, initialize_kernels did not take an soname parameter.
